@@ -16,6 +16,5 @@ class AfterSpider(scrapy.Spider):
             l.add_css('title', 'img::attr(alt)')
             l.add_css('available', '.instock::text')
             l.add_css('price', '.price_color::text')
-            l.add_css('currency', '.price_color::text')
 
             yield l.load_item()

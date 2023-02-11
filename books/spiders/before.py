@@ -1,6 +1,16 @@
 import scrapy
-from price_parser import Price
 from books.items import BooksItem
+from price_parser import Price
+
+def get_price(p):
+    price_object = Price.fromstring(p)
+    return price_object.amount_float
+
+def get_availability(p:list):
+    for data in p:
+        if 'In Stock' in data:
+            return True
+    return False
 
 class BeforeSpider(scrapy.Spider):
     name = 'before'
@@ -9,19 +19,12 @@ class BeforeSpider(scrapy.Spider):
 
     def parse(self, response):
         for book in response.css('ol.row li'):
-            price_raw = book.css('.price_color::text').get()
-            price_object = Price.fromstring(price_raw)
+            price = get_price(book.css('.price_color::text').get())
+            available = get_availability(book.css('.instock::text').getall())
 
-            # available?
-            available = False
-            for data in book.css('.instock::text').getall():
-                if 'In Stock' in data:
-                    available = True
-                    continue
 
             item = dict()
             item['title'] = book.css('img::attr(alt)').get()
             item['available'] = available
-            item['price'] = price_object.amount_float
-            item['currency'] = price_object.currency
-            print(item)
+            item['price'] = price
+            yield item

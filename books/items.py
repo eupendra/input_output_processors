@@ -9,18 +9,12 @@ from price_parser import Price
 from w3lib.html import remove_tags
 
 
-def get_price_in(p):
+def get_price(p):
     price_object = Price.fromstring(p)
     return price_object.amount_float
 
 
-def get_currency_in(p):
-    price_object = Price.fromstring(p)
-    currency = price_object.currency
-    return currency
-
-
-def get_availability_out(p:list):
+def get_availability(p: list):
     for data in p:
         if 'In Stock' in data:
             return True
@@ -29,25 +23,18 @@ def get_availability_out(p:list):
 
 class BooksItem(scrapy.Item):
     title = scrapy.Field(
-        output_processor=TakeFirst()  # calling method
+        output_processor=TakeFirst()
     )
     price = scrapy.Field(
-        input_processor=MapCompose(get_price_in),
-        output_processor=TakeFirst()  # calling method
+        input_processor=MapCompose(get_price),
+        output_processor=TakeFirst()
     )
     available = scrapy.Field(
-        output_processor=get_availability_out  # calling method
+        output_processor=get_availability
     )
 
-    currency = scrapy.Field(
-        input_processor=MapCompose(get_currency_in),
-        output_processor=TakeFirst()  # calling method
-    )
-    
-# Plain Item
+
 # class BooksItem(scrapy.Item):
 #     title = scrapy.Field()
 #     price = scrapy.Field()
-#     currency = scrapy.Field()
 #     available = scrapy.Field()
-#     currency = scrapy.Field()
